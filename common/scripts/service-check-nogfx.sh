@@ -4,7 +4,7 @@ export LANG=C
 export TERM=dumb
 
 REQUIREDSOCKETS="cynara.socket dbus.socket security-manager.socket"
-REQUIREDSERVICES="afm-system-daemon.service connman.service ofono.service bluetooth.service"
+REQUIREDSERVICES="afm-system-daemon.service afm-user-session@1001.service connman.service ofono.service bluetooth.service gpsd.service udisks.service lightmediascanner.service"
 
 ALL="${REQUIREDSOCKETS} ${REQUIREDSERVICES}"
 RESULT="unknown"
