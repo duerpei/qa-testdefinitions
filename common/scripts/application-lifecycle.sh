@@ -39,6 +39,17 @@ set -x
 	return $?
 }
 
+do_afm_test()
+{
+set -x
+	if [ $SERVICE_USER -eq 1 -o $APPLICATION_USER -eq 1 ];then
+		su - $AGLDRIVER -c "aft-test $*"
+	else
+		afm-test -l $*
+	fi
+	return $?
+}
+
 if [ ! -f index.html ] ; then
 	wget -q $BASEURL -O index.html
 	if [ $? -ne 0 ];then
@@ -47,14 +58,13 @@ if [ ! -f index.html ] ; then
 	fi
 fi
 
+WGTNAME="$(grep -o '[a-z-]*.wgt' index.html | sed 's,.wgt$,,' | sed 's,-debug$,,' | sed 's,-coverage$,,' | sed 's,-test$,,' | uniq)"
+
 grep -o '[a-z-]*.wgt' index.html | sort | uniq |
 while read wgtfile
 do
 	# remove extension and the debug state
-	WGTNAME=$(echo $wgtfile | sed 's,.wgt$,,' | sed 's,-debug$,,')
-	SERVICE_PLATFORM=0
-	SERVICE_USER=0
-	APPLICATION_USER=0
+	#export WGTNAME=$(echo $wgtfile | sed 's,.wgt$,,' | sed 's,-debug$,,' | sed 's,-coverage$,,' | sed 's,-test$,,')
 	echo "DEBUG: fetch $wgtfile"
 
 	if [ ! -f $wgtfile ] ; then
@@ -64,6 +74,14 @@ do
 			continue
 		fi
 	fi
+done
+
+echo "$WGTNAME"
+
+inspectwgt() 
+{
+
+	wgtfile=$1
 	CURDIR="$(pwd)"
 	ZIPOUT="$(mktemp -d)"
 	cd $ZIPOUT
@@ -87,13 +105,13 @@ do
 		    # we are a service, now determine the scope ...
 		    grep "urn:AGL:permission::partner:scope-platform" config.xml
 		    if [ $? -eq 0 ];then
-			SERVICE_PLATFORM=1
+			export SERVICE_PLATFORM=1
 		    else
-			SERVICE_USER=1
+			export SERVICE_USER=1
 		    fi
 		else
 		    # we are an application
-		    APPLICATION_USER=1
+		    export APPLICATION_USER=1
 		    # no other type known (yet)
 		fi
 	else
@@ -102,6 +120,22 @@ do
 
 	cd $CURDIR
 	rm -r $ZIPOUT
+
+}
+
+# cases:
+# a) (release).wgt -> lifecycle
+# b) -test.wgt -> run afm-test $wgt
+# later: c) -coverage wgt -> install coverage AND run afm-test $wgt
+for RUNIT in runrelease runtest ; do
+
+    SERVICE_PLATFORM=0
+    SERVICE_USER=0
+    APPLICATION_USER=0
+
+    if [ x"runrelease" = x"$RUNIT" ] ; then
+	eval wgtfile="${WGTNAME}.wgt"
+	inspectwgt $wgtfile
 
 	echo "DEBUG: list current pkgs"
 	# TODO mktemp
@@ -296,4 +330,13 @@ do
 	else
 		lava-test-case afm-util-status2-$WGTNAME --result pass
 	fi
+    fi
+    if [ x"runtest" = x"$RUNIT" ] ; then
+	eval wgtfile="${WGTNAME}-test.wgt"
+	inspectwgt $wgtfile
+	afm-test -l $wgtfile
+	journalctl -b | grep ${WGTNAME}-test
+	( journalctl -b | grep ${WGTNAME}-test | grep ERROR ) || true	
+    fi
+
 done
