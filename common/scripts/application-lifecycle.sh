@@ -7,6 +7,9 @@ export COLUMNS=1000
 
 AGLDRIVER=agl-driver
 
+# for pyagl - unless redefined in a test
+AGL_AVAILABLE_INTERFACES="ethernet"
+
 while [ $# -ge 1 ]
 do
 	case $1 in
