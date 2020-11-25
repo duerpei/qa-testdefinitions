@@ -368,48 +368,13 @@ do
 	if [ -e $WGTNAME.wgt ];then
 		inspect_wgt $WGTNAME.wgt $WGTNAME
 		do_release_test $WGTNAME $WGTNAME.wgt
-	else
-		echo "WARN: cannot find $WGTNAME.wgt"
-	fi
-	if [ -e $WGTNAME-test.wgt ];then
-		# wgt-test do not have the same permissions in the config.xml as the parent wgt
-		# so keep the value from last run
-		#inspect_wgt $WGTNAME-test.wgt
-		check_service_running $WGTNAME
-		if [ $? -eq 1 ];then
-			do_afm_test $TOPDIR/$WGTNAME-test.wgt
-			if [ $? -eq 0 ];then
-				lava-test-case run-test-$WGTNAME --result pass
-			else
-				lava-test-case run-test-$WGTNAME --result fail
-			fi
-		else
-			echo "DEBUG: $WGTNAME is not running, skipping test"
-			lava-test-case run-test-$WGTNAME --result skip
-		fi
+		pytest --show-capture=no --color=no -k "not hwrequired and not internet" /usr/lib/python?.?/site-packages/pyagl/tests/ -L
 	else
 		echo "WARN: cannot find $WGTNAME.wgt"
 	fi
 	if [ -e $WGTNAME-debug.wgt ];then
 		inspect_wgt $WGTNAME-debug.wgt $WGTNAME
 		do_release_test $WGTNAME $WGTNAME-debug.wgt
-	fi
-	if [ -e $WGTNAME-coverage.wgt ];then
-		inspect_wgt $WGTNAME-coverage.wgt $WGTNAME
-		do_release_test $WGTNAME $WGTNAME-coverage.wgt
-		check_service_running $WGTNAME
-		if [ $? -eq 1 ];then
-			afm-util install $TOPDIR/$WGTNAME-test.wgt
-			do_afm_test $TOPDIR/$WGTNAME-test.wgt
-			if [ $? -eq 0 ];then
-				lava-test-case run-test-$WGTNAME --result pass
-			else
-				lava-test-case run-test-$WGTNAME --result fail
-			fi
-		else
-			echo "DEBUG: $WGTNAME is not running, skipping test"
-			lava-test-case run-test-$WGTNAME --result skip
-		fi
 	fi
 done
 
