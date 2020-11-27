@@ -19,6 +19,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-journalctl -a --no-pager
+SYSTEMD_COLORS=false journalctl -a --no-pager
 echo "dumpjournal: pass"
 exit 0
