@@ -177,11 +177,11 @@ do_release_test() {
 	afm-util list --all > $LIST
 	if [ $? -ne 0 ];then
 		echo "ERROR: afm-util list exit with error"
-		continue
+		return 1
 	fi
 	if [ ! -s "$LIST" ];then
 		echo "ERROR: afm-util list is empty"
-		continue
+		return 1
 	fi
 
 	echo "DEBUG: check presence of $WGTNAME"
@@ -225,7 +225,7 @@ do_release_test() {
 	if [ $? -ne 0 ];then
 		echo "ERROR: afm-util install"
 		lava-test-case afm-util-install-$WGTNAMEF --result fail
-		continue
+		return 1
 	else
 		lava-test-case afm-util-install-$WGTNAMEF --result pass
 	fi
@@ -236,18 +236,18 @@ do_release_test() {
 		echo "DEBUG: ========== DUMPING output =========="
 		cat $OUT
 		echo "DEBUG: ========== END DUMP =========="
-		continue
+		return 1
 	fi
 	echo "DEBUG: $WGTNAME is installed as $NAMEID"
 
 	afm-util list --all > $LIST
 	if [ $? -ne 0 ];then
 		echo "ERROR: afm-util list exit with error"
-		continue
+		return 1
 	fi
 	if [ ! -s "$LIST" ];then
 		echo "ERROR: afm-util list is empty"
-		continue
+		return 1
 	fi
 	echo "DEBUG: Verify that $WGTNAME is installed"
 	grep -q $NAMEID $LIST
@@ -278,7 +278,7 @@ do_release_test() {
 		echo "ERROR: afm-util start"
 		lava-test-case afm-util-start-$WGTNAMEF --result fail
 		journalctl -an 200
-		continue
+		return 1
 	else
 		lava-test-case afm-util-start-$WGTNAMEF --result pass
 	fi
@@ -291,7 +291,7 @@ do_release_test() {
 	if [ $? -ne 0 ];then
 		echo "ERROR: afm-util ps"
 		lava-test-case afm-util-ps-$WGTNAMEF --result fail
-		continue
+		return 1
 	else
 		cat $PSLIST
 		lava-test-case afm-util-ps-$WGTNAMEF --result pass
@@ -305,7 +305,7 @@ do_release_test() {
 		if [ $? -ne 0 ];then
 			echo "ERROR: afm-util start"
 			lava-test-case afm-util-start-$WGTNAMEF --result fail
-			continue
+			return 1
 		fi
 		RID="$(cat rid)"
 	fi
@@ -313,7 +313,7 @@ do_release_test() {
 	if [ "$RID" == 'null' ];then
 		echo "ERROR: RID is null, service fail to start"
 		lava-test-case afm-util-status-$WGTNAMEF --result fail
-		continue
+		return 1
 	fi
 
 	echo "DEBUG: status $NAMEID ($RID)"
@@ -321,7 +321,7 @@ do_release_test() {
 	if [ $? -ne 0 ];then
 		echo "ERROR: afm-util status"
 		lava-test-case afm-util-status-$WGTNAMEF --result fail
-		continue
+		return 1
 	else
 		lava-test-case afm-util-status-$WGTNAMEF --result pass
 	fi
@@ -331,7 +331,7 @@ do_release_test() {
 	if [ $? -ne 0 ];then
 		echo "ERROR: afm-util kill"
 		lava-test-case afm-util-kill-$WGTNAMEF --result fail
-		continue
+		return 1
 	else
 		lava-test-case afm-util-kill-$WGTNAMEF --result pass
 	fi
@@ -342,14 +342,14 @@ do_release_test() {
 		echo "ERROR: afm-util start2"
 		lava-test-case afm-util-start2-$WGTNAMEF --result fail
 		journalctl -an 200
-		continue
+		return 1
 	else
 		lava-test-case afm-util-start2-$WGTNAMEF --result pass
 	fi
 	RID="$(cat rid)"
 	if [ "$RID" == 'null' ];then
 		echo "ERROR: RID is null"
-		continue
+		return 1
 	fi
 	sleep 10
 	echo "DEBUG: status2 $NAMEID ($RID)"
@@ -357,7 +357,7 @@ do_release_test() {
 	if [ $? -ne 0 ];then
 		echo "ERROR: afm-util status2"
 		lava-test-case afm-util-status2-$WGTNAMEF --result fail
-		continue
+		return 1
 	else
 		lava-test-case afm-util-status2-$WGTNAMEF --result pass
 	fi
