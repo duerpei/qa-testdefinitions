@@ -1,11 +1,21 @@
 #!/bin/sh
 
 if [ -z "$PYARTIPROXY_IP" ];then
-	#echo "ERROR: cannot upload, no PYARTIPROXY_IP"
-	#exit 1
-	# TODO: lab-baylibre-agl does not get env as it should be. I will debug this later.
-	echo "DEBUG: No PYARTIPROXY_IP variable, fallback to baylibre one"
-	PYARTIPROXY_IP=10.1.1.47
+
+	echo "DEBUG: No PYARTIPROXY_IP variable, using fallbacks"
+	BAYLIBRE_IP=10.1.1.47
+	AGLCORELAB_IP=192.168.111.1
+
+	if ping -q -W 2 -4 -c 1 $BAYLIBRE_IP ; then 
+		PYARTIPROXY_IP=$BAYLIBRE_IP
+	fi
+	if ping -q -W 2 -4 -c 1 $AGLCORELAB_IP ; then
+		PYARTIPROXY_IP=$AGLCORELAB_IP
+	fi
+	if [ -z $PYARTIPROXY_IP ] ; then
+	    echo "ERROR: no PYARTIPROXY_IP"
+	    exit 1
+	fi
 fi
 
 if [ -z "$1" ];then
