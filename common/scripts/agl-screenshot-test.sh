@@ -117,9 +117,9 @@ if [ "${REF_IMAGE_SHA1SUM}" == "${IMAGE_SHA1SUM}" ]; then
 else
 	echo "Screenshot does not match the reference image"
 	FINALRET=127
-	for i in agl-screenshot-*.png ; do
+	for i in /home/agl-driver/agl-screenshot-*.png ; do
 		if [ -x ./artiproxy-upload.sh ];then
-			./artiproxy-upload.sh $i dumpjournal
+			./artiproxy-upload.sh $i $(basename $i)
 		fi
 	done
 	echo "#########################"
