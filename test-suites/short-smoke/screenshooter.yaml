@@ -6,4 +6,5 @@ metadata:
 run:
     steps:
       - chmod +x ./common/scripts/agl-screenshot-test.sh
-      - ./common/scripts/agl-screenshot-test.sh ./reference-images/reference-image.png
+      - cd common/scripts
+      - ./agl-screenshot-test.sh ../../reference-images/reference-image.png
