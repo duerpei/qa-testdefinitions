@@ -28,6 +28,23 @@ if [ -z "$2" ];then
 	exit 1
 fi
 
+if [ -d "$1" ];then
+	echo "ERROR: $1 is a directory"
+	exit 1
+fi
+
+echo "DEBUG: filename=$2 data=$1"
+if [ -e "$1" ];then
+	ls -l "$1"
+	if [ -s "$1" ];then
+		echo "DEBUG: $1 exists and not empty"
+	else
+		echo "WARNING: $1 is empty"
+	fi
+else
+	echo "ERROR: data does not exists"
+fi
+
 curl --silent --show-error -F "filename=$2" -F "data=@$1" http://$PYARTIPROXY_IP:9090/cgi-bin/pyartiproxy.py --output curl.out
 if [ $? -ne 0 ];then
 	echo "ERROR: with curl"

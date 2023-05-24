@@ -12,7 +12,7 @@ fi
 
 
 if [ -x ./artiproxy-upload.sh ] ; then
-    LOG_DIR=/var/run/agl-test/logs/log-to-report
+    LOG_DIR='/var/run/agl-test/logs/log-to-report'
     ZIP_FILE=`ls ${LOG_DIR} | grep agl-test-log*`
 
     if [ -z $ZIP_FILE ] ; then
@@ -20,7 +20,10 @@ if [ -x ./artiproxy-upload.sh ] ; then
         exit 1
     fi
 
-    ./artiproxy-upload.sh $LOG_DIR $ZIP_FILE
+    echo "DEBUG: upload LOG_DIR=${LOG_DIR}XXX"
+    echo "DEBUG: upload ZIP_FILE=${ZIP_FILE}XXX"
+
+    ./artiproxy-upload.sh "$LOG_DIR/$ZIP_FILE" "$ZIP_FILE"
     if [ $? -eq 1 ] ; then
         echo "Upload of ${ZIP_FILE} failed"
         exit 1
