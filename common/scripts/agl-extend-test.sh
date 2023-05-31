@@ -1,14 +1,17 @@
 #!/bin/bash
+export NO_COLOR=1
+export TERM=dumb
 
 pre_check=`which agl-test`
 
 if [ -n "$pre_check" ] ; then
-    agl-test
     echo "agl-extend-test is present"
 else
     echo "agl-test is not installed, abort this test"
     exit 127
 fi
+
+agl-test
 
 
 if [ -x ./artiproxy-upload.sh ] ; then
