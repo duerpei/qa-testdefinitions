@@ -1,19 +1,25 @@
 #!/bin/bash
+export NO_COLOR=1
+export TERM=dumb
 
 pre_check=`which agl-test`
 
 if [ -n "$pre_check" ] ; then
-    agl-test
     echo "agl-extend-test is present"
 else
     echo "agl-test is not installed, abort this test"
     exit 127
 fi
 
+# execute
+agl-test
+
 
 if [ -x ./artiproxy-upload.sh ] ; then
     LOG_DIR='/var/run/agl-test/logs/log-to-report'
     ZIP_FILE=`ls ${LOG_DIR} | grep agl-test-log*`
+
+    ls -alh ${LOG_DIR}
 
     if [ -z $ZIP_FILE ] ; then
         echo "Cannot find agl-extend-test log"
